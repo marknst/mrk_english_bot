@@ -1,4 +1,14 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
+
+lang_menu = InlineKeyboardMarkup(row_width=2)
+
+lang_eng = InlineKeyboardButton(text='English', callback_data='lang_eng')
+lang_ukr = InlineKeyboardButton(text='Українська', callback_data='lang_ukr')
+
+lang_menu.insert(lang_eng)
+lang_menu.insert(lang_ukr)
+
 
 kb = ReplyKeyboardMarkup(resize_keyboard=True)
 kb_cancel = ReplyKeyboardMarkup(resize_keyboard=True)

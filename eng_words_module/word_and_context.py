@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 from eng_words_module import make_result_clean
 from parse_html import parse_html
 
-
 try:
     def get_word_and_context(word: str):
         url = "https://context.reverso.net/translation/english-ukrainian/" + word
@@ -11,7 +10,7 @@ try:
         soup = BeautifulSoup(html_content, 'html.parser')
 
         string_eng = soup.find(class_="src ltr").find('span')
-        result_eng = string_eng.text.replace(word, word.upper()).strip()
+        result_eng = string_eng.text.replace(word, f'*{word}*').strip()
 
         string_ukr = str(soup.find(class_="add icon addentry"))
         result_ukr = make_result_clean.clean_result_ukr(string_ukr)
