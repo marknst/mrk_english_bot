@@ -21,3 +21,4 @@ def parse_html(url: str):
     else:
         print("Failed to fetch the webpage: ", response.status_code)
         html_content = None
+

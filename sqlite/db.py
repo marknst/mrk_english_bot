@@ -23,3 +23,11 @@ class Database:
     def update_lang(self, user_id, lang):
         with self.connection:
             return self.cursor.execute("UPDATE users SET lang = ? WHERE user_id = ?", (lang, user_id))
+        
+    def update_last_word(self, user_id, last_word):
+        with self.connection:
+            return self.cursor.execute("UPDATE users SET last_word = ? WHERE user_id = ?", (last_word, user_id))
+        
+    def get_last_word(self, user_id):
+        with self.connection:
+            return self.cursor.execute("SELECT last_word FROM users WHERE user_id = ?", (user_id, )).fetchone()[0]

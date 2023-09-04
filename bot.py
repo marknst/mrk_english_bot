@@ -7,7 +7,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from eng_words_module import most_popular_words, word_and_context
 from keyboards import kb, kb_cancel, lang_menu
 from sqlite.db import Database
-from localization import _
+from localization import loc
 
 logging.basicConfig(level=logging.INFO)
 storage = MemoryStorage()
@@ -21,18 +21,17 @@ class UserStatesGroup(StatesGroup):
 
 
 async def send_start_message(user_id, lang, kb):
-    await bot.send_message(user_id, text=_(lang)['start_text'], reply_markup=kb)
+    await bot.send_message(user_id, text=loc(lang)['start_text'], reply_markup=kb)
+
 
 # Start command
-
-
 @dp.message_handler(commands=['start'])
 async def cmd_start(message: types.Message):
     if not db.user_exists(message.from_user.id):
         await bot.send_message(message.from_user.id, "Choose bot language: ", reply_markup=lang_menu)
     else:
         lang = db.get_lang(message.from_user.id)
-        await message.answer(text=_(lang)['start_text'], reply_markup=kb)
+        await message.answer(text=loc(lang)['start_text'], reply_markup=kb)
 
 
 # Exit from all states
@@ -40,7 +39,7 @@ async def cmd_start(message: types.Message):
 async def cmd_cancel(message: types.Message, state: FSMContext):
     await state.finish()
     lang = db.get_lang(message.from_user.id)
-    await message.answer(text=_(lang)['cancel_text'], reply_markup=kb)
+    await message.answer(text=loc(lang)['cancel_text'], reply_markup=kb)
 
 
 # Callback that waits for 'lang_' callback data
@@ -51,10 +50,10 @@ async def set_bot_language(callback: types.CallbackQuery):
     user_lang = callback.data[5:]
     if not db.user_exists(callback.from_user.id):
         db.add_user(callback.from_user.id, user_lang)
-        await bot.send_message(callback.from_user.id, text=_(user_lang)['new_lang_text'])
+        await bot.send_message(callback.from_user.id, text=loc(user_lang)['new_lang_text'])
     else:
         db.update_lang(callback.from_user.id, user_lang)
-        await bot.send_message(callback.from_user.id, text=_(user_lang)['new_lang_text'])
+        await bot.send_message(callback.from_user.id, text=loc(user_lang)['new_lang_text'])
     await send_start_message(callback.from_user.id, user_lang, kb)
 
 
@@ -62,7 +61,7 @@ async def set_bot_language(callback: types.CallbackQuery):
 @dp.message_handler(commands=['change_language'])
 async def change_bot_language(message: types.Message):
     lang = db.get_lang(message.from_user.id)
-    await bot.send_message(message.from_user.id, text=_(lang)['change_lang_text'], reply_markup=lang_menu)
+    await bot.send_message(message.from_user.id, text=loc(lang)['change_lang_text'], reply_markup=lang_menu)
 
 
 # Get context and translate using random word
@@ -70,15 +69,20 @@ async def change_bot_language(message: types.Message):
 async def get_random_word_and_context(message: types.Message):
     chat_id = message.from_user.id
     word = most_popular_words.get_random_word()
+    db.update_last_word(chat_id, word)
     await bot.send_message(chat_id=chat_id, text=word_and_context.get_word_and_context(word))
 
+
+@dp.message_handler(commands=['another_context'])
+async def get_another_context(message: types.Message):
+    await bot.send_message(message.from_user.id, text=db.get_last_word(message.from_user.id))
 
 # Go to waiting for user word state
 @dp.message_handler(commands=['start_search'])
 async def get_user_word_and_context(message: types.Message, state: FSMContext):
     lang = db.get_lang(message.from_user.id)
     await state.set_state(UserStatesGroup.user_word)
-    await message.answer(text=_(lang)['start_search_text'], reply_markup=kb_cancel)
+    await message.answer(text=loc(lang)['start_search_text'], reply_markup=kb_cancel)
 
 
 # User word waiting state and than get context and translate
