@@ -4,7 +4,7 @@ localizations = {
             🌼 Hello! AVAILABLE COMMANDS:\n
             /random_word - Get a random word, context and translation.
             /start_search - Bot gets into the search mode.
-            /cancel - Exit from the search mode.
+            /another_context - Get another context for last word.
             /change_language - Change bot language.""",
         'cancel_text': """
             🟠 You just turned off the search mode.\n
@@ -17,13 +17,14 @@ localizations = {
             To turn off, use /cancel.\n
             Enter a word or few words in English or Ukrainian.""",
         'new_lang_text': "Bot language - English",
+        'out_of_state': "You have left the state",
     },
     'ukr': {
         'start_text': f"""
             🌼 Привіт! НАЯВНІ КОМАНДИ:\n
             /random_word - Отримати випадкове слово, контекст до нього та переклад на українську.
             /start_search - Бот стає в режим пошуку.
-            /cancel - Вийти з режиму пошуку.
+            /another_context - Отримати інший контекст до останнього слова.
             /change_language - Змінити мову бота.""",
         'cancel_text': """
             🟠 Ви вийшли з режиму пошуку.\n
@@ -36,6 +37,7 @@ localizations = {
             Щоб завершити, використайте /cancel.\n
             Введіть слово або кілька слів англійською або українською.""",
         'new_lang_text': "Мова бота - Українська",
+        'out_of_state': "Ви вийшли з режиму пошуку",
     }
 }
 

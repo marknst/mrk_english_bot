@@ -67,17 +67,33 @@ async def change_bot_language(message: types.Message):
 # Get context and translate using random word
 @dp.message_handler(commands=['random_word'])
 async def get_random_word_and_context(message: types.Message):
-    chat_id = message.from_user.id
     word = most_popular_words.get_random_word()
-    db.update_last_word(chat_id, word)
-    await bot.send_message(chat_id=chat_id, text=word_and_context.get_word_and_context(word))
+    db.update_last_word(message.from_user.id, word)
+    await bot.send_message(message.from_user.id, text=word_and_context.get_word_and_context(word))
+
+
+# Get another context of chosen word
+context_index = 0
 
 
 @dp.message_handler(commands=['another_context'])
 async def get_another_context(message: types.Message):
-    await bot.send_message(message.from_user.id, text=db.get_last_word(message.from_user.id))
+    global context_index
+    context_index += 1
 
-# Go to waiting for user word state
+    try:
+        another_context = word_and_context.get_another_context(
+            db.get_last_word(message.from_user.id), context_index)
+    except:
+        context_index = 0
+        another_context = word_and_context.get_another_context(
+            db.get_last_word(message.from_user.id), context_index)
+
+    await bot.send_message(message.from_user.id, another_context)
+    await message.delete()
+
+
+# Waiting for user word
 @dp.message_handler(commands=['start_search'])
 async def get_user_word_and_context(message: types.Message, state: FSMContext):
     lang = db.get_lang(message.from_user.id)
@@ -85,12 +101,21 @@ async def get_user_word_and_context(message: types.Message, state: FSMContext):
     await message.answer(text=loc(lang)['start_search_text'], reply_markup=kb_cancel)
 
 
+# Check if searched user word is command
+@dp.message_handler(lambda message: message.text.startswith('/'), state='*')
+async def check_if_word_is_command(message: types.Message, state: FSMContext):
+    if message.text == '/another_context':
+        await get_another_context(message)
+    else:
+        await bot.send_message(message.from_user.id, text='You should first out of state. Use /cancel')
+
+
 # User word waiting state and than get context and translate
 @dp.message_handler(state=UserStatesGroup.user_word)
-async def wait_user_word(message: types.Message):
-    chat_id = message.from_user.id
+async def wait_user_word(message: types.Message, state: FSMContext):
     word = message.text
-    await bot.send_message(chat_id=chat_id, text=word_and_context.get_word_and_context(word))
+    db.update_last_word(message.from_user.id, word)
+    await bot.send_message(message.from_user.id, text=word_and_context.get_word_and_context(word))
 
 
 if __name__ == "__main__":
