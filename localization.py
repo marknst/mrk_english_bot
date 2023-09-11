@@ -1,47 +1,29 @@
 localizations = {
     'eng': {
-        'start_text': f"""
-            🌼 Hello! AVAILABLE COMMANDS:\n
-            /random_word - Get a random word, context and translation.
-            /start_search - Bot gets into the search mode.
-            /another_context - Get another context for last word.
-            /change_language - Change bot language.""",
-        'cancel_text': """
-            🟠 You just turned off the search mode.\n
-            Now you can use next commands:
-            /random_word - Get a random word, context and translation.
-            /start_search - Bot gets into the search mode.""",
+        'start_text': 
+            "🌼 Welcome to Enlish words bot!\n\n"\
+            "✏️Enter any word to get context + translate to it.\n\n"
+            "Or use next features:\n🎲"\
+            "'Random word': Random word, context and translation.\n"\
+            "🔄 'Another context': Get another context for last word.\n"\
+            "🈳 'Change language': Change bot language.\n",
         'change_lang_text': "Choose bot language: ",
-        'start_search_text': """
-            🟢 You just turned on the search mode.\n
-            To turn off, use /cancel.\n
-            Enter a word or few words in English or Ukrainian.""",
         'new_lang_text': "Bot language - English",
-        'out_of_state': "You have left the state",
     },
     'ukr': {
-        'start_text': f"""
-            🌼 Привіт! НАЯВНІ КОМАНДИ:\n
-            /random_word - Отримати випадкове слово, контекст до нього та переклад на українську.
-            /start_search - Бот стає в режим пошуку.
-            /another_context - Отримати інший контекст до останнього слова.
-            /change_language - Змінити мову бота.""",
-        'cancel_text': """
-            🟠 Ви вийшли з режиму пошуку.\n
-            Тепер ви можете використовувати команди: 
-            /random_word - Використай, щоб отримати випадкове слово, контекст до нього та переклад на українську.
-            /start_search - Бот стає в режим пошуку слів.""",
+        'start_text':
+            "🌼 Вітаю в English words bot!\n\n"\
+            "✏️ Введіть слово щоб отримати контекст до нього та переклад.\n\n"
+            "Або скористайся наступними функціями:\n"\
+            "🎲 'Random word': Випадкове слово, контекст + переклад.\n"\
+            "🔄 'Another context': Отримати інший контекст до останнього слова.\n"\
+            "🈳 'Change language': Змінити мову бота.\n",
         'change_lang_text': "Оберіть мову бота: ",
-        'start_search_text': """
-            🟢 Ви увійшли в режим пошуку.\n
-            Щоб завершити, використайте /cancel.\n
-            Введіть слово або кілька слів англійською або українською.""",
         'new_lang_text': "Мова бота - Українська",
-        'out_of_state': "Ви вийшли з режиму пошуку",
     }
 }
 
 
-def loc(lang='eng'):
+def localization(lang='eng'):
     global localizations
     return localizations[lang]

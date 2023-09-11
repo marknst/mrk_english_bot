@@ -30,7 +30,7 @@ try:
         result_ukr = string_ukr[index]['data-text'].replace(
             '<em>', '*').replace('</em>', '*')
 
-        return f"▫️: {result_eng}\n◾️: {result_ukr}"
+        return f"{word.upper()}\n▫️: {result_eng}\n◾️: {result_ukr}"
 
 
 except:
