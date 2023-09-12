@@ -12,29 +12,35 @@ dp = Dispatcher(bot)
 db = Database('sqlite\database.db')
 
 
+last_message = None
+
+
 # Start command
 @dp.message_handler(commands=['start'])
 async def send_start(message: types.Message):
-
+    global last_message
     await message.delete()
+
     if not db.user_exists(message.from_user.id):
-        await bot.send_message(message.from_user.id, "Choose bot language: ", reply_markup=lang_menu)
+        last_message = await bot.send_message(message.chat.id, "Choose bot language: ", reply_markup=lang_menu)
     else:
         user_lang = db.get_lang(message.from_user.id)
-        await message.answer(text=localization(user_lang)['start_text'], reply_markup=kb)
+        last_message = await bot.send_message(message.chat.id, text=localization(user_lang)['start_text'], reply_markup=kb)
 
 
 # Search words
 @dp.message_handler(content_types=types.ContentType.TEXT)
 async def search_words(message: types.Message):
+    global last_message
+    await message.delete()
 
     user_word = message.text
     if user_word.startswith('/'):
         await message.answer("You are trying to use command.\nPlease type words without '/'")
     else:
-        await message.answer(word_and_context.get_word_and_context(user_word), reply_markup=word_kb)
         db.update_last_word(message.from_user.id, user_word)
-    
+        await bot.edit_message_text(chat_id=message.chat.id, message_id=last_message.message_id, text=word_and_context.get_word_and_context(user_word), reply_markup=word_kb)
+
 
 # Get context and translate using random word
 @dp.callback_query_handler(text_contains='/random_word')
@@ -49,7 +55,6 @@ async def get_random_word_and_context(callback: types.CallbackQuery):
         text=word_and_context.get_word_and_context(word),
         reply_markup=word_kb
     )
-
 
 
 # Get another context of chosen word
@@ -103,9 +108,9 @@ async def set_bot_language(callback: types.CallbackQuery):
         db.update_lang(callback.from_user.id, user_lang)
 
     await bot.edit_message_text(
-        chat_id=callback.from_user.id, 
-        message_id=callback.message.message_id, 
-        text=localization(user_lang)['start_text'], 
+        chat_id=callback.from_user.id,
+        message_id=callback.message.message_id,
+        text=localization(user_lang)['start_text'],
         reply_markup=kb)
 
 
