@@ -10,7 +10,8 @@ btn_another_context = InlineKeyboardButton(
     text="Another context", callback_data="/another_context")
 btn_change_lang = InlineKeyboardButton(
     text="Change language", callback_data="/change_language")
-btn_to_start = InlineKeyboardButton(text='To start', callback_data='/start')
+btn_to_menu = InlineKeyboardButton(text='Menu', callback_data='/menu')
+
 
 
 lang_menu = InlineKeyboardMarkup(row_width=2)
@@ -25,5 +26,7 @@ kb.insert(btn_another_context)
 
 
 word_kb = InlineKeyboardMarkup(row_width=3)
+word_kb.insert(btn_to_menu)
 word_kb.insert(bnt_random_word)
 word_kb.insert(btn_another_context)
+
