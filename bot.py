@@ -1,9 +1,8 @@
 import logging
 import config
-import typing
 from aiogram import Bot, types, Dispatcher, executor
 from eng_words_module import most_popular_words, word_and_context
-from keyboards import kb, lang_menu, word_kb
+from keyboards import main_kb, lang_menu, word_kb
 from sqlite.db import Database
 from localization import localization
 
@@ -11,7 +10,6 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=config.token)
 dp = Dispatcher(bot)
 db = Database('sqlite\database.db')
-
 
 
 last_start_message = None
@@ -24,27 +22,32 @@ async def send_start(message: types.Message):
 
     try:
         if last_start_message['message_id']:
-            await bot.delete_message(message.chat.id, last_start_message['message_id'])
+            await bot.delete_message(
+                message.chat.id, 
+                last_start_message['message_id'])
     except:
         print('There is no /start messages earlier')
 
     if not db.user_exists(message.from_user.id):
-        last_start_message = await bot.send_message(message.chat.id, "Choose bot language: ", reply_markup=lang_menu)
+        last_start_message = await bot.send_message(
+            message.chat.id, 
+            "Choose bot language: ", 
+            reply_markup=lang_menu(db.get_lang(message.from_user.id)))
     else:
-        user_lang = db.get_lang(message.from_user.id)
-        last_start_message = await bot.send_message(message.chat.id, text=localization(user_lang)['start_text'], reply_markup=kb)
+        last_start_message = await bot.send_message(
+            message.chat.id, 
+            text=localization(db.get_lang(message.from_user.id))['start_text'], 
+            reply_markup=main_kb(db.get_lang(message.from_user.id)))
 
 
 @dp.callback_query_handler(text_contains='/menu')
 async def go_to_menu(callback: types.CallbackQuery):
-    user_lang = db.get_lang(callback.from_user.id)
-
 
     await bot.edit_message_text(
         chat_id=callback.from_user.id,
         message_id=last_start_message.message_id,
-        text=localization(user_lang)['start_text'],
-        reply_markup=kb
+        text=localization(db.get_lang(callback.from_user.id))['start_text'],
+        reply_markup=main_kb(db.get_lang(callback.from_user.id))
     )    
 
 
@@ -59,7 +62,11 @@ async def search_words(message: types.Message):
         await message.answer("Please enter words without '/'")
     else:
         db.update_last_word(message.from_user.id, user_word)
-        await bot.edit_message_text(chat_id=message.chat.id, message_id=last_start_message.message_id, text=word_and_context.get_word_and_context(user_word), reply_markup=word_kb)
+        await bot.edit_message_text(
+            chat_id=message.chat.id, 
+            message_id=last_start_message.message_id, 
+            text=word_and_context.get_word_and_context(user_word), 
+            reply_markup=word_kb(db.get_lang(message.from_user.id)))
 
 
 # Get context and translate using random word
@@ -73,7 +80,7 @@ async def get_random_word_and_context(callback: types.CallbackQuery):
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id,
         text=word_and_context.get_word_and_context(word),
-        reply_markup=word_kb
+        reply_markup=word_kb(db.get_lang(callback.from_user.id))
     )
 
 
@@ -99,7 +106,7 @@ async def get_another_context(callback: types.CallbackQuery):
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id,
         text=another_context,
-        reply_markup=word_kb
+        reply_markup=word_kb(db.get_lang(callback.from_user.id))
     )
 
 
@@ -107,13 +114,11 @@ async def get_another_context(callback: types.CallbackQuery):
 @dp.callback_query_handler(text_contains='/change_language')
 async def change_bot_language(callback: types.CallbackQuery):
 
-    user_lang = db.get_lang(callback.from_user.id)
-
     await bot.edit_message_text(
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id,
-        text=localization(user_lang)['change_lang_text'],
-        reply_markup=lang_menu)
+        text=localization(db.get_lang(callback.from_user.id))['change_lang_text'],
+        reply_markup=lang_menu(db.get_lang(callback.from_user.id)))
 
 
 # Callback that waits for 'lang_' callback data
@@ -131,7 +136,7 @@ async def set_bot_language(callback: types.CallbackQuery):
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id,
         text=localization(user_lang)['start_text'],
-        reply_markup=kb)
+        reply_markup=main_kb(user_lang))
 
 
 if __name__ == "__main__":
